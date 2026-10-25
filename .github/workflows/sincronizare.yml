@@ -5,6 +5,7 @@ on:
     - cron: '17 6 * * *'
     - cron: '37 6 * * *'
     - cron: '57 6 * * *'
+    - cron: '17 7 * * *'
   workflow_dispatch:
     inputs:
       s:
@@ -31,6 +32,7 @@ jobs:
             '17 6 * * *') s=s1 ;;
             '37 6 * * *') s=s2 ;;
             '57 6 * * *') s=s3 ;;
+            '17 7 * * *') s=s4 ;;
             *) s="$ALES" ;;
           esac
           echo "s=$s" >> "$GITHUB_OUTPUT"
