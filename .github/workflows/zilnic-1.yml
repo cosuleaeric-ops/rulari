@@ -10,7 +10,7 @@ on:
     inputs:
       s:
         type: choice
-        options: [s1, s2]
+        options: [s1, s2, s3]
       doar_verificare:
         type: boolean
         default: false
