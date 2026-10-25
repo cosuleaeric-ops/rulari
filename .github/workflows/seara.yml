@@ -1,0 +1,30 @@
+name: Seara
+
+on:
+  schedule:
+    - cron: '7 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rulare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Rulare
+        env:
+          SECRETE: ${{ toJSON(secrets) }}
+        run: |
+          npm ci --prefix web --no-audit --no-fund --loglevel=error >/dev/null
+          cd web && npx tsx scripts/raport-zilnic.ts >/dev/null

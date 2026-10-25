@@ -1,0 +1,51 @@
+name: Sincronizare
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+    - cron: '37 6 * * *'
+  workflow_dispatch:
+    inputs:
+      s:
+        type: choice
+        options: [s1, s2]
+
+permissions:
+  contents: read
+
+concurrency: sincronizare
+
+jobs:
+  alege:
+    runs-on: ubuntu-latest
+    outputs:
+      s: ${{ steps.s.outputs.s }}
+    steps:
+      - id: s
+        env:
+          ORA: ${{ github.event.schedule }}
+          ALES: ${{ inputs.s }}
+        run: |
+          case "$ORA" in
+            '17 6 * * *') s=s1 ;;
+            '37 6 * * *') s=s2 ;;
+            *) s="$ALES" ;;
+          esac
+          echo "s=$s" >> "$GITHUB_OUTPUT"
+
+  rulare:
+    needs: alege
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ needs.alege.outputs.s }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+      - uses: ./.github/actions/pregatire
+        with:
+          site: ${{ secrets.SITE }}
+          secrete: ${{ toJSON(secrets) }}
+      - name: Rulare
+        run: cd web && npx tsx scripts/vanzari-sync.ts >/dev/null

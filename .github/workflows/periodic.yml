@@ -1,0 +1,52 @@
+name: Periodic
+
+on:
+  schedule:
+    - cron: '17 5 * * 1'
+    - cron: '17 6 1 * *'
+  workflow_dispatch:
+    inputs:
+      rutina:
+        type: choice
+        options: [raport-saptamanal, strategie-lunara]
+        default: raport-saptamanal
+
+permissions:
+  contents: read
+
+concurrency: periodic
+
+jobs:
+  rulare:
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        s: [s1, s2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: ${{ matrix.s }}
+    env:
+      SITE: ${{ secrets.SITE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+      - uses: ./.github/actions/pregatire
+        with:
+          site: ${{ secrets.SITE }}
+          secrete: ${{ toJSON(secrets) }}
+      - name: Unelte
+        run: npm install -g @anthropic-ai/claude-code >/dev/null
+      - name: Date
+        env:
+          REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
+        run: node scripts/cunostinte.mjs descarca >/dev/null
+      - name: Rulare
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
+          PRAG_MINUTE: 120
+          RUTINA: ${{ inputs.rutina || (github.event.schedule == '17 6 1 * *' && 'strategie-lunara' || 'raport-saptamanal') }}
+        run: .github/scripts/ruleaza.sh $RUTINA

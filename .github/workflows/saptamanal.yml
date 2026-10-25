@@ -1,0 +1,40 @@
+name: Saptamanal
+
+on:
+  schedule:
+    - cron: '7 7 * * 1'
+    - cron: '7 8 1 * *'
+  workflow_dispatch:
+    inputs:
+      mod:
+        type: choice
+        options: [luni, strategie]
+        default: luni
+
+permissions:
+  contents: read
+
+jobs:
+  rulare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Rulare
+        env:
+          SECRETE: ${{ toJSON(secrets) }}
+          MOD: ${{ inputs.mod || (github.event.schedule == '7 8 1 * *' && 'strategie' || 'luni') }}
+        run: |
+          npm ci --prefix web --no-audit --no-fund --loglevel=error >/dev/null
+          mkdir -p "$HOME/.secrets"
+          gsc=$(printf '%s' "$SECRETE" | jq -r '.GSC_OAUTH_JSON // empty')
+          if [ -n "$gsc" ]; then printf '%s' "$gsc" > "$HOME/.secrets/cesaicumpar-gsc-oauth.json"; fi
+          cd web && npx tsx scripts/raport-periodic.ts "$MOD" >/dev/null

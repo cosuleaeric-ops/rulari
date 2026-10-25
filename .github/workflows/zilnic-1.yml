@@ -1,0 +1,86 @@
+name: Zilnic 1
+
+on:
+  schedule:
+    - cron: '47 1 * * *'
+    - cron: '47 7 * * *'
+    - cron: '17 10 * * *'
+    - cron: '17 14 * * *'
+  workflow_dispatch:
+    inputs:
+      s:
+        type: choice
+        options: [s1, s2]
+      doar_verificare:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  alege:
+    runs-on: ubuntu-latest
+    outputs:
+      s: ${{ steps.s.outputs.s }}
+    steps:
+      - id: s
+        env:
+          ORA: ${{ github.event.schedule }}
+          ALES: ${{ inputs.s }}
+        run: |
+          case "$ORA" in
+            '47 1 * * *'|'47 7 * * *') s=s2 ;;
+            '17 10 * * *'|'17 14 * * *') s=s1 ;;
+            *) s="$ALES" ;;
+          esac
+          echo "s=$s" >> "$GITHUB_OUTPUT"
+
+  rulare:
+    needs: alege
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    environment: ${{ needs.alege.outputs.s }}
+    concurrency: z1-${{ needs.alege.outputs.s }}
+    env:
+      SITE: ${{ secrets.SITE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+          fetch-depth: 50
+      - uses: ./.github/actions/pregatire
+        with:
+          site: ${{ secrets.SITE }}
+          secrete: ${{ toJSON(secrets) }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unelte
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq webp >/dev/null
+          pip install -q pillow
+          npm install -g @anthropic-ai/claude-code >/dev/null
+      - name: Date
+        env:
+          REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
+        run: node scripts/cunostinte.mjs descarca >/dev/null
+      - name: Verificare
+        if: inputs.doar_verificare
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
+        run: .github/scripts/ruleaza.sh zilnic-1 verificare
+      - name: Rulare
+        if: ${{ !inputs.doar_verificare }}
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
+          GH_TOKEN: ${{ secrets.MOTOR_TOKEN }}
+        run: .github/scripts/ruleaza.sh zilnic-1
+      - name: La eroare
+        if: failure()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: .github/scripts/ruleaza.sh zilnic-1 eroare
