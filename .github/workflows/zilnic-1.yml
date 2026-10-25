@@ -53,7 +53,8 @@ jobs:
       - uses: ./.github/actions/pregatire
         with:
           site: ${{ secrets.SITE }}
-          secrete: ${{ toJSON(secrets) }}
+          env-local: ${{ secrets.ENV_LOCAL }}
+          gsc: ${{ secrets.GSC_OAUTH_JSON }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

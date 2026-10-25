@@ -36,7 +36,8 @@ jobs:
       - uses: ./.github/actions/pregatire
         with:
           site: ${{ secrets.SITE }}
-          secrete: ${{ toJSON(secrets) }}
+          env-local: ${{ secrets.ENV_LOCAL }}
+          gsc: ${{ secrets.GSC_OAUTH_JSON }}
       - name: Unelte
         run: npm install -g @anthropic-ai/claude-code >/dev/null
       - name: Date
