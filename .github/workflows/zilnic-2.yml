@@ -1,11 +1,6 @@
 name: Zilnic 2
 
 on:
-  schedule:
-    - cron: '47 4 * * *'
-    - cron: '17 16 * * *'
-    - cron: '47 17 * * *'
-    - cron: '17 13 * * *'
   workflow_dispatch:
     inputs:
       s:

@@ -1,9 +1,6 @@
 name: Saptamanal
 
 on:
-  schedule:
-    - cron: '7 7 * * 1'
-    - cron: '7 8 1 * *'
   workflow_dispatch:
     inputs:
       mod:
