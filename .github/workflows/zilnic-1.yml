@@ -6,6 +6,8 @@ on:
     - cron: '47 7 * * *'
     - cron: '17 10 * * *'
     - cron: '17 14 * * *'
+    - cron: '17 4 * * *'
+    - cron: '17 12 * * *'
   workflow_dispatch:
     inputs:
       s:
@@ -32,6 +34,7 @@ jobs:
           case "$ORA" in
             '47 1 * * *'|'47 7 * * *') s=s2 ;;
             '17 10 * * *'|'17 14 * * *') s=s1 ;;
+            '17 4 * * *'|'17 12 * * *') s=s3 ;;
             *) s="$ALES" ;;
           esac
           echo "s=$s" >> "$GITHUB_OUTPUT"
