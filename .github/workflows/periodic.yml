@@ -19,7 +19,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        s: [s1, s2, s3, s4, s5]
+        s: [s1, s2, s3, s4, s5, s7]
     runs-on: ubuntu-latest
     timeout-minutes: 180
     environment: ${{ matrix.s }}

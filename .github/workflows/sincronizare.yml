@@ -5,7 +5,7 @@ on:
     inputs:
       s:
         type: choice
-        options: [s1, s2, s3, s4, s5]
+        options: [s1, s2, s3, s4, s5, s7]
 
 permissions:
   contents: read
