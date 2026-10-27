@@ -1,0 +1,43 @@
+name: Sincronizare 2
+
+on:
+  workflow_dispatch:
+    inputs:
+      sarcina:
+        type: choice
+        options: [vanzari, flush]
+
+permissions:
+  contents: read
+
+concurrency: sincronizare-2
+
+jobs:
+  rulare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: s6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.S6_REPO }}
+          token: ${{ secrets.S6_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pregătire
+        env:
+          ENV_FILE: ${{ secrets.S6_ENV }}
+        run: |
+          npm ci --no-audit --no-fund --loglevel=error >/dev/null
+          printf '%s\n' "$ENV_FILE" > .env
+          chmod 600 .env
+      - name: Rulare
+        env:
+          SARCINA: ${{ inputs.sarcina }}
+        run: |
+          case "$SARCINA" in
+            vanzari) node pull_commissions.mjs >/dev/null ;;
+            flush) node flush_tracking.mjs >/dev/null ;;
+            *) echo "sarcină necunoscută"; exit 1 ;;
+          esac
