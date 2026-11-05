@@ -35,6 +35,8 @@ jobs:
       - name: Rulare
         env:
           SARCINA: ${{ inputs.sarcina }}
+          DOGNET_EMAIL: ${{ secrets.DOGNET_EMAIL }}
+          DOGNET_PASSWORD: ${{ secrets.DOGNET_PASSWORD }}
         run: |
           case "$SARCINA" in
             vanzari) node pull_commissions.mjs >/dev/null ;;

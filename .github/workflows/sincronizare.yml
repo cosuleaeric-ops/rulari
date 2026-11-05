@@ -48,4 +48,7 @@ jobs:
           env-local: ${{ secrets.ENV_LOCAL }}
           gsc: ${{ secrets.GSC_OAUTH_JSON }}
       - name: Rulare
+        env:
+          DOGNET_EMAIL: ${{ secrets.DOGNET_EMAIL }}
+          DOGNET_PASSWORD: ${{ secrets.DOGNET_PASSWORD }}
         run: cd web && npx tsx scripts/vanzari-sync.ts >/dev/null
