@@ -68,12 +68,14 @@ jobs:
         if: inputs.doar_verificare
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
         run: .github/scripts/ruleaza.sh zilnic-1 verificare
       - name: Rulare
         if: ${{ !inputs.doar_verificare }}
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           REGULI_DATABASE_URL: ${{ secrets.REGULI_DATABASE_URL }}
           GH_TOKEN: ${{ secrets.MOTOR_TOKEN }}
         run: .github/scripts/ruleaza.sh zilnic-1
