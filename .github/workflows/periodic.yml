@@ -7,6 +7,10 @@ on:
         type: choice
         options: [raport-saptamanal, strategie-lunara]
         default: raport-saptamanal
+      doar:
+        description: lista JSON de environment-uri, gol = toate
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -19,7 +23,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        s: [s1, s2, s3, s4, s5, s7, s8, s9, s10, s11, s12]
+        s: ${{ fromJSON(inputs.doar != '' && inputs.doar || '["s1","s2","s3","s4","s5","s7","s8","s9","s10","s11","s12"]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     environment: ${{ matrix.s }}
