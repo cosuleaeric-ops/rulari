@@ -5,7 +5,7 @@ on:
     inputs:
       s:
         type: choice
-        options: [s1, s2, s3, s4, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17]
+        options: [s1, s2, s3, s4, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18]
       doar_verificare:
         type: boolean
         default: false
