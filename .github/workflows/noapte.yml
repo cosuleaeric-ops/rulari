@@ -1,0 +1,28 @@
+name: Noapte
+
+# One deploy per night for the engine changes of the day (Eric, 21 Nov 2026). An engine commit no longer
+# rebuilds every site at once; this empty commit marked [noapte] rebuilds only the sites that still lack
+# an engine change. Sites that built after it (with their own commit) skip it.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rulare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.MOTOR_REPO }}
+          token: ${{ secrets.MOTOR_TOKEN }}
+          fetch-depth: 1
+      - name: Commit de noapte
+        run: |
+          if [ -z "$(git log --since='25 hours ago' --format=%h -1)" ]; then echo "Nimic nou."; exit 0; fi
+          git config user.name "Eric Cosulea"
+          git config user.email "cosuleaeric@gmail.com"
+          git commit -q --allow-empty -m "Motor: deploy de noapte [noapte]"
+          git push -q origin HEAD:main
